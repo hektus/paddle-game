@@ -1,7 +1,6 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-//define up/down player move
 let playerUpPressed = false;
 let playerDownPressed = false;
 
@@ -11,7 +10,7 @@ let playerPaddleY = canvas.height / 2;
 
 //define AI paddle
 const aiPaddleSpeed = 5;
-const aiPaddleX = canvas.height / 2;
+let aiPaddleY = canvas.height / 2;
 
 //variables to both paddle and net(color)
 const paddleHeight = 150;
@@ -20,8 +19,11 @@ const paddleMarginOffset = 50;
 const paddleColor = "gold";
 
 //define ball
-const ballWidth = 50;
-const ballHeight = 50;
+const ballRadius = 20;
+let ballX = canvas.width / 2;
+let ballY = canvas.height / 2;
+let ballDX = -2;
+let ballDY = 2;
 
 //define net
 const netWidth = 5;
@@ -67,7 +69,7 @@ function drawAiPaddle() {
   ctx.beginPath();
   ctx.rect(
     canvas.width - paddleWidth - paddleMarginOffset,
-    aiPaddleX - paddleHeight / 2,
+    aiPaddleY - paddleHeight / 2,
     paddleWidth,
     paddleHeight
   );
@@ -84,6 +86,42 @@ function drawMiddleNet() {
     ctx.fill();
   }
   ctx.closePath();
+}
+
+function drawBall() {
+  ctx.beginPath();
+  ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+  ctx.fillStyle = paddleColor;
+  ctx.fill();
+  ctx.closePath();
+}
+
+function detectCollision() {
+  //detect top and bottom line
+  if (ballY - ballRadius < 0) {
+    ballDY = -ballDY;
+  } else if (ballY + ballRadius > canvas.height) {
+    ballDY = -ballDY;
+  }
+
+  //detect left line, ai score and player paddle
+  if (ballX - ballRadius - paddleWidth - paddleMarginOffset < 0) {
+    if (
+      ballY > playerPaddleY - paddleHeight / 2 &&
+      ballY < playerPaddleY + paddleHeight / 2
+    ) {
+      ballDX = -ballDX;
+    } else if (ballX - ballRadius < 0) {
+      aiScore++;
+      ballX = canvas.width / 2;
+      ballY = canvas.height / 2;
+    }
+  }
+  //detect player score, right line and ai paddle
+  if (ballX + ballRadius > canvas.width) {
+    ballDX = -ballDX;
+    console.log("Punkt dla gracza");
+  }
 }
 
 function drawPlayerScore() {
@@ -115,16 +153,22 @@ function draw() {
   drawMiddleNet();
   drawPlayerScore();
   drawAiScore();
-
+  drawBall();
+  detectCollision();
+  ballX += ballDX;
+  ballY += ballDY;
+  // console.log(playerPaddleY);
+  // player paddel control
   if (playerUpPressed) {
     playerPaddleY -= playerPaddleSpeed;
+    aiPaddleY = playerPaddleY; // follow player paddle (to be removed)
     if (playerPaddleY - paddleHeight / 2 < 0) {
       playerPaddleY = paddleHeight / 2;
     }
   }
-
   if (playerDownPressed) {
     playerPaddleY += playerPaddleSpeed;
+    aiPaddleY = playerPaddleY; // follow player paddle (to be removed)
     if (playerPaddleY + paddleHeight / 2 > canvas.height) {
       playerPaddleY = canvas.height - paddleHeight / 2;
     }
