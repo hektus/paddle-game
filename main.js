@@ -49,6 +49,8 @@ let playerScore = 0;
 //define aiScore
 let aiScore = 0;
 
+let scoreToWin = 5;
+
 function keyUpHandler(e) {
   if (e.key === 38 || e.key === "ArrowUp") {
     playerUpPressed = false;
@@ -130,6 +132,16 @@ function detectCollision() {
       aiScore++;
       ballX = canvas.width / 2;
       ballY = canvas.height / 2;
+      if (aiScore === scoreToWin) {
+        ballX = canvas.width / 2;
+        ballY = canvas.height / 2;
+        ballDX = 0;
+        ballDY = 0;
+        setTimeout(() => {
+          alert("AI WINS");
+          document.location.reload();
+        }, 1000);
+      }
     }
   }
 
@@ -146,6 +158,16 @@ function detectCollision() {
       playerScore++;
       ballX = canvas.width / 2;
       ballY = canvas.height / 2;
+      if (playerScore === scoreToWin) {
+        ballX = canvas.width / 2;
+        ballY = canvas.height / 2;
+        ballDX = 0;
+        ballDY = 0;
+        setTimeout(() => {
+          alert("YOU WIN");
+          document.location.reload();
+        }, 1000);
+      }
     }
   }
 }
@@ -153,10 +175,12 @@ function detectCollision() {
 function drawPlayerScore() {
   ctx.font = "28px Arial";
   ctx.fillStyle = paddleColor;
-  const textMetrics = ctx.measureText(`Player Score: ${playerScore}`);
+  const textMetrics = ctx.measureText(
+    `Player Score: ${playerScore} / ${scoreToWin}`
+  );
   const textWidth = textMetrics.width;
   ctx.fillText(
-    `Player Score: ${playerScore}`,
+    `Player Score: ${playerScore} / ${scoreToWin}`,
     canvas.width / 4 - textWidth / 2,
     30
   );
@@ -165,9 +189,13 @@ function drawPlayerScore() {
 function drawAiScore() {
   ctx.font = "28px Arial";
   ctx.fillStyle = paddleColor;
-  const textMetrics = ctx.measureText(`Ai Score: ${aiScore}`);
+  const textMetrics = ctx.measureText(`Ai Score: ${aiScore} / ${scoreToWin}`);
   const textWidth = textMetrics.width;
-  ctx.fillText(`Ai Score: ${aiScore}`, canvas.width - 300 - textWidth / 2, 30);
+  ctx.fillText(
+    `Ai Score: ${aiScore} / ${scoreToWin}`,
+    canvas.width - 300 - textWidth / 2,
+    30
+  );
 }
 
 //main function to draw all
@@ -187,14 +215,14 @@ function draw() {
   // player paddel control
   if (playerUpPressed) {
     playerPaddleY -= playerPaddleSpeed;
-    aiPaddleY = playerPaddleY; // follow player paddle (to be removed)
+    // aiPaddleY = playerPaddleY; // follow player paddle (to be removed)
     if (playerPaddleY - paddleHeight / 2 < 0) {
       playerPaddleY = paddleHeight / 2;
     }
   }
   if (playerDownPressed) {
     playerPaddleY += playerPaddleSpeed;
-    aiPaddleY = playerPaddleY; // follow player paddle (to be removed)
+    // aiPaddleY = playerPaddleY; // follow player paddle (to be removed)
     if (playerPaddleY + paddleHeight / 2 > canvas.height) {
       playerPaddleY = canvas.height - paddleHeight / 2;
     }
