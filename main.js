@@ -22,16 +22,16 @@ const paddleColor = "gold";
 const ballRadius = 20;
 let ballX = canvas.width / 2;
 let ballY = canvas.height / 2;
-const speedBall = 4;
+const ballSpeed = 4;
 let ballAcceleration = 1;
 
 //define random ball respawn direction
 const randomBallRespawn = () => {
   const direction = Math.floor(Math.random() * 2);
-  if (direction === 0) {
-    return -speedBall;
+  if (!direction) {
+    return -ballSpeed;
   } else {
-    return speedBall;
+    return ballSpeed;
   }
 };
 
@@ -199,7 +199,6 @@ function drawAiScore() {
 }
 
 //main function to draw all
-
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawPlayerPaddle();
@@ -215,17 +214,27 @@ function draw() {
   // player paddel control
   if (playerUpPressed) {
     playerPaddleY -= playerPaddleSpeed;
-    // aiPaddleY = playerPaddleY; // follow player paddle (to be removed)
     if (playerPaddleY - paddleHeight / 2 < 0) {
       playerPaddleY = paddleHeight / 2;
     }
   }
   if (playerDownPressed) {
     playerPaddleY += playerPaddleSpeed;
-    // aiPaddleY = playerPaddleY; // follow player paddle (to be removed)
     if (playerPaddleY + paddleHeight / 2 > canvas.height) {
       playerPaddleY = canvas.height - paddleHeight / 2;
     }
+  }
+
+  //AI paddle control
+
+  const aiPaddleSmoothness = 0.04 + Math.random() * (0.15 - 0.04);
+  const paddleToBallDelta = ballY - aiPaddleY;
+  aiPaddleY += paddleToBallDelta * aiPaddleSmoothness;
+
+  if (aiPaddleY - paddleHeight / 2 < 0) {
+    aiPaddleY = paddleHeight / 2;
+  } else if (aiPaddleY + paddleHeight / 2 > canvas.height) {
+    aiPaddleY = canvas.height - paddleHeight / 2;
   }
 
   requestAnimationFrame(draw);
