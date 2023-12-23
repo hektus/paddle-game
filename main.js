@@ -22,8 +22,21 @@ const paddleColor = "gold";
 const ballRadius = 20;
 let ballX = canvas.width / 2;
 let ballY = canvas.height / 2;
-let ballDX = -2;
-let ballDY = 2;
+const speedBall = 4;
+let ballAcceleration = 1;
+
+//define random ball respawn direction
+const randomBallRespawn = () => {
+  const direction = Math.floor(Math.random() * 2);
+  if (direction === 0) {
+    return -speedBall;
+  } else {
+    return speedBall;
+  }
+};
+
+let ballDX = randomBallRespawn();
+let ballDY = randomBallRespawn();
 
 //define net
 const netWidth = 5;
@@ -111,16 +124,29 @@ function detectCollision() {
       ballY < playerPaddleY + paddleHeight / 2
     ) {
       ballDX = -ballDX;
+      ballAcceleration += 0.1;
     } else if (ballX - ballRadius < 0) {
+      ballAcceleration = 1;
       aiScore++;
       ballX = canvas.width / 2;
       ballY = canvas.height / 2;
     }
   }
+
   //detect player score, right line and ai paddle
-  if (ballX + ballRadius > canvas.width) {
-    ballDX = -ballDX;
-    console.log("Punkt dla gracza");
+  if (ballX + ballRadius + paddleMarginOffset + paddleWidth > canvas.width) {
+    if (
+      ballY > aiPaddleY - paddleHeight / 2 &&
+      ballY < aiPaddleY + paddleHeight / 2
+    ) {
+      ballDX = -ballDX;
+      ballAcceleration += 0.1;
+    } else if (ballX + ballRadius > canvas.width) {
+      ballAcceleration = 1;
+      playerScore++;
+      ballX = canvas.width / 2;
+      ballY = canvas.height / 2;
+    }
   }
 }
 
@@ -155,9 +181,9 @@ function draw() {
   drawAiScore();
   drawBall();
   detectCollision();
-  ballX += ballDX;
-  ballY += ballDY;
-  // console.log(playerPaddleY);
+  ballX += ballDX * ballAcceleration;
+  ballY += ballDY * ballAcceleration;
+
   // player paddel control
   if (playerUpPressed) {
     playerPaddleY -= playerPaddleSpeed;
